@@ -11,7 +11,7 @@
 
 from datetime import date, timedelta
 
-today = date.today()
+today = date.today() # - timedelta(days=1)
 
 BOT_NAME = 'ojd_evictions'
 
@@ -38,11 +38,11 @@ DATABASE = {
     'port': '5432',
     'username': 'postgres',
     'password': 'admin',
-    'database': "ojdevictions_2021"
-    # 'database': "ojdevictions_" + today.strftime("%Y") + "_" + today.strftime("%Y%m%d")
+    #'database': "ojdevictions_2015" #_" + today.strftime("%Y%m%d")
+    'database': "ojdevictions_" + today.strftime("%Y") + "_" + today.strftime("%Y%m%d")
 }
 
-# FILES_STORE = r'CaseFile_Downloads\2021'
+FILES_STORE = r'G:\Shared drives\ojdevictions\ScrapeData\Court Documents'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 CONCURRENT_REQUESTS = 1

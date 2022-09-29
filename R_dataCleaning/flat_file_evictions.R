@@ -47,6 +47,7 @@ getCaseOverviews <- function() {
   case_overviews$style <- str_replace_all(case_overviews$style, "\n", " ")
   return(case_overviews)
 }
+
 getCaseParties <- function() {
   con20 <- connectDB()[[1]]
   con21 <- connectDB()[[2]]
@@ -92,8 +93,8 @@ getFiles <- function() {
   
   files <- bind_rows(files20, files21)
   return(files)
-  
 }
+
 getJudgments <- function() {
   con20 <- connectDB()[[1]]
   con21 <- connectDB()[[2]]
@@ -124,6 +125,7 @@ getLawyers <- function() {
   lawyers <- bind_rows(lawyers20, lawyers21)
   return(lawyers)
 }
+
 getDefendantInfo <- function() {
   getCaseParties() %>%
     filter(party_side == "Defendant") %>%

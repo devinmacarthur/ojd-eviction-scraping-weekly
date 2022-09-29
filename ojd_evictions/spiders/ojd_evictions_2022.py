@@ -17,13 +17,19 @@ import re
 from ojd_evictions.items import CaseOverviewItem, CasePartyItem, LawyerItem, JudgmentItem, FileItem, EventItem
 import calendar
 from time import sleep
+from datetime import date, datetime, timedelta
+import pandas as pd
+from scrapy.crawler import CrawlerProcess
+
+today = date.today()
+
 
 class OJDEvictions(scrapy.Spider):
 	name = 'ojd-evictions-2022'
 
 	allowed_domains = ['publicaccess.courts.oregon.gov']
 
-	logging.basicConfig(filename="logfile.log", level = logging.INFO)
+	logging.basicConfig(filename="logfile.log", level = logging.DEBUG)
 	logger = logging.getLogger(__name__)
 
 	url_login = "https://publicaccess.courts.oregon.gov/PublicAccessLogin/login.aspx"
@@ -133,6 +139,8 @@ class OJDEvictions(scrapy.Spider):
 	}
 
 	month_list = range(1, 13)
+	DateRange = pd.date_range(start='01/01/2022', end=datetime.now(), freq='15D')
+	# DateRange = pd.date_range(start='01/01/2015', end='12/30/2015', freq='15D')
 
 	sleep_delay = 0.1
 
@@ -193,10 +201,13 @@ class OJDEvictions(scrapy.Spider):
 		search_formdata['NodeID'] = node_id
 		search_formdata['NodeDesc'] = location
 
-		for month in self.month_list:
+		for i in self.DateRange:
+
+			starting_date = i.strftime("%m/%d/%Y")
+			ending_date = (i.date() + timedelta(14)).strftime("%m/%d/%Y")
 			
-			starting_date = "{month}/{day}/2022".format(month = str(month).zfill(2), day = '01')
-			ending_date = "{month}/{day}/2022".format(month = str(month).zfill(2), day = str(calendar.monthrange(2022,month)[1]).zfill(2))
+			# starting_date = "{month}/{day}/2022".format(month = str(month).zfill(2), day = '01')
+			# ending_date = "{month}/{day}/2022".format(month = str(month).zfill(2), day = str(calendar.monthrange(2022,month)[1]).zfill(2))
 
 			search_formdata['DateFiledOnAfter'] = starting_date
 			search_formdata['DateFiledOnBefore'] = ending_date
@@ -440,3 +451,7 @@ class OJDEvictions(scrapy.Spider):
 		yield FileItem(case_code = case_code,
 			file_urls = [self.url_case_det_base + link for link, text in zip(doc_links, doc_text) if "Complaint" in text])
 
+
+#process = CrawlerProcess()
+#process.crawl(OJDEvictions)
+#process.start()

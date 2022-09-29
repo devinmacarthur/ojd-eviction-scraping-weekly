@@ -87,7 +87,7 @@ class OJDEvictions(scrapy.Spider):
 		'SearchBy': '0',
 		'ExactName': 'on',
 		'CaseSearchMode': 'CaseNumber',
-		'CaseSearchValue': '14LT*', # change this for a different case search
+		'CaseSearchValue': '18LT*', # change this for a different case search
 		'CitationSearchValue': '',
 		'CourtCaseSearchValue': '',
 		'PartySearchMode': 'Name',
@@ -194,8 +194,8 @@ class OJDEvictions(scrapy.Spider):
 
 		for month in self.month_list:
 			
-			starting_date = "{month}/{day}/2014".format(month = str(month).zfill(2), day = '01')
-			ending_date = "{month}/{day}/2014".format(month = str(month).zfill(2), day = str(calendar.monthrange(2014,month)[1]).zfill(2))
+			starting_date = "{month}/{day}/2018".format(month = str(month).zfill(2), day = '01')
+			ending_date = "{month}/{day}/2018".format(month = str(month).zfill(2), day = str(calendar.monthrange(2018,month)[1]).zfill(2))
 
 			search_formdata['DateFiledOnAfter'] = starting_date
 			search_formdata['DateFiledOnBefore'] = ending_date
