@@ -139,8 +139,8 @@ class OJDEvictions(scrapy.Spider):
 	}
 
 	month_list = range(1, 13)
-	DateRange = pd.date_range(start='01/01/2022', end=datetime.now(), freq='15D')
-	# DateRange = pd.date_range(start='01/01/2015', end='12/30/2015', freq='15D')
+	# DateRange = pd.date_range(start='01/01/2022', end=datetime.now(), freq='15D')
+	DateRange = pd.date_range(start='01/01/2022', end='12/30/2022', freq='15D')
 
 	sleep_delay = 0.1
 
@@ -345,16 +345,18 @@ class OJDEvictions(scrapy.Spider):
 				yield LawyerItem(name = name, status = status, party_name = party_name, case_code = case_code, striked = True)
 
 		# iterate over each judgment
-		for judgment in select.xpath("//table[{table_ind}]/tr[contains(./td[3]/b/text(),'Judgment -')]".format(table_ind = starting_table_ind + 1)):
+		# for judgment in select.xpath("//table[{table_ind}]/tr[contains(./td[3]/b/text(),'Judgment -')]".format(table_ind=starting_table_ind + 1)):
+		for judgment in select.xpath("//table[{table_ind}]/tr[contains(./td[3]//*/text(),'Judgment -')]".format(table_ind = starting_table_ind + 1)):
 			loader = ItemLoader(JudgmentItem(), judgment)
 
 			loader.default_output_processor = Join()
 
 			loader.add_value('case_code', case_code)
-			loader.add_xpath('case_type', ".//td[3]/b/text()")
+			# loader.add_xpath('case_type', ".//td[3]/b/text()")
+			loader.add_xpath('case_type', "(.//td[3]//*/text())[1]")
 			loader.add_xpath('date', ".//th/text()")
 			loader.add_xpath('party', ".//td[3]/div/table/tr/td/nonobr/table/tr/td/nobr/text()")
-			
+
 			# multiple ways that the decision is formatted
 			decision = judgment.xpath(".//td[3]/div/table/tr/td/nonobr/table/tr/td/text()").extract_first()
 
@@ -375,7 +377,8 @@ class OJDEvictions(scrapy.Spider):
 
 			loader.add_value('case_code', case_code)
 			loader.add_xpath('date',"./th[1]/text()")
-			
+
+			# title = event.xpath(".//td[3]//*/text()").extract_first()
 			title = event.xpath(".//td[3]/b/text()").extract_first() # check for title without link
 			
 			if title is None: 
@@ -452,6 +455,6 @@ class OJDEvictions(scrapy.Spider):
 			file_urls = [self.url_case_det_base + link for link, text in zip(doc_links, doc_text) if "Complaint" in text])
 
 
-#process = CrawlerProcess()
-#process.crawl(OJDEvictions)
-#process.start()
+# process = CrawlerProcess()
+# process.crawl(OJDEvictions)
+# process.start()

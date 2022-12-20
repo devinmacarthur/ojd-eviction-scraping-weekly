@@ -17,13 +17,19 @@ import re
 from ojd_evictions.items import CaseOverviewItem, CasePartyItem, LawyerItem, JudgmentItem, FileItem, EventItem
 import calendar
 from time import sleep
+from datetime import date, datetime, timedelta
+import pandas as pd
+from scrapy.crawler import CrawlerProcess
+
+today = date.today()
+
 
 class OJDEvictions(scrapy.Spider):
 	name = 'ojd-evictions-2021'
 
 	allowed_domains = ['publicaccess.courts.oregon.gov']
 
-	logging.basicConfig(filename="logfile.log", level = logging.INFO)
+	logging.basicConfig(filename="logfile.log", level = logging.DEBUG)
 	logger = logging.getLogger(__name__)
 
 	url_login = "https://publicaccess.courts.oregon.gov/PublicAccessLogin/login.aspx"
@@ -133,6 +139,8 @@ class OJDEvictions(scrapy.Spider):
 	}
 
 	month_list = range(1, 13)
+	# DateRange = pd.date_range(start='01/01/2022', end=datetime.now(), freq='15D')
+	DateRange = pd.date_range(start='01/01/2021', end='12/30/2021', freq='15D')
 
 	sleep_delay = 0.1
 
@@ -193,10 +201,13 @@ class OJDEvictions(scrapy.Spider):
 		search_formdata['NodeID'] = node_id
 		search_formdata['NodeDesc'] = location
 
-		for month in self.month_list:
+		for i in self.DateRange:
+
+			starting_date = i.strftime("%m/%d/%Y")
+			ending_date = (i.date() + timedelta(14)).strftime("%m/%d/%Y")
 			
-			starting_date = "{month}/{day}/2021".format(month = str(month).zfill(2), day = '01')
-			ending_date = "{month}/{day}/2021".format(month = str(month).zfill(2), day = str(calendar.monthrange(2021,month)[1]).zfill(2))
+			# starting_date = "{month}/{day}/2022".format(month = str(month).zfill(2), day = '01')
+			# ending_date = "{month}/{day}/2022".format(month = str(month).zfill(2), day = str(calendar.monthrange(2022,month)[1]).zfill(2))
 
 			search_formdata['DateFiledOnAfter'] = starting_date
 			search_formdata['DateFiledOnBefore'] = ending_date
@@ -334,16 +345,18 @@ class OJDEvictions(scrapy.Spider):
 				yield LawyerItem(name = name, status = status, party_name = party_name, case_code = case_code, striked = True)
 
 		# iterate over each judgment
-		for judgment in select.xpath("//table[{table_ind}]/tr[contains(./td[3]/b/text(),'Judgment -')]".format(table_ind = starting_table_ind + 1)):
+		# for judgment in select.xpath("//table[{table_ind}]/tr[contains(./td[3]/b/text(),'Judgment -')]".format(table_ind=starting_table_ind + 1)):
+		for judgment in select.xpath("//table[{table_ind}]/tr[contains(./td[3]//*/text(),'Judgment -')]".format(table_ind = starting_table_ind + 1)):
 			loader = ItemLoader(JudgmentItem(), judgment)
 
 			loader.default_output_processor = Join()
 
 			loader.add_value('case_code', case_code)
-			loader.add_xpath('case_type', ".//td[3]/b/text()")
+			# loader.add_xpath('case_type', ".//td[3]/b/text()")
+			loader.add_xpath('case_type', "(.//td[3]//*/text())[1]")
 			loader.add_xpath('date', ".//th/text()")
 			loader.add_xpath('party', ".//td[3]/div/table/tr/td/nonobr/table/tr/td/nobr/text()")
-			
+
 			# multiple ways that the decision is formatted
 			decision = judgment.xpath(".//td[3]/div/table/tr/td/nonobr/table/tr/td/text()").extract_first()
 
@@ -364,7 +377,8 @@ class OJDEvictions(scrapy.Spider):
 
 			loader.add_value('case_code', case_code)
 			loader.add_xpath('date',"./th[1]/text()")
-			
+
+			# title = event.xpath(".//td[3]//*/text()").extract_first()
 			title = event.xpath(".//td[3]/b/text()").extract_first() # check for title without link
 			
 			if title is None: 
@@ -440,3 +454,7 @@ class OJDEvictions(scrapy.Spider):
 		yield FileItem(case_code = case_code,
 			file_urls = [self.url_case_det_base + link for link, text in zip(doc_links, doc_text) if "Complaint" in text])
 
+
+# process = CrawlerProcess()
+# process.crawl(OJDEvictions)
+# process.start()
