@@ -27,7 +27,7 @@ subprocess.call([cmd, arg1, arg2], shell = True)
 
 # run r script to get tables and write to csv
 command = "C:\\Program Files\\R\\R-4.0.5\\bin\\Rscript.exe"
-path2script = "R_dataCleaning/flat_file_evictions.R"
+path2script = "R_dataCleaning/OLD_flat_file_evictions.R"
 subprocess.call([command, path2script], shell=True)
 
 # get file extenstions

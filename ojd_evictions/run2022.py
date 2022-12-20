@@ -13,7 +13,7 @@ today = date.today()
 con = psycopg2.connect(database="postgres", user='postgres', password='admin', host='127.0.0.1', port= '5432')
 con.autocommit = True
 cur = con.cursor()
-name_Database =  "ojdevictions_2022_" + today.strftime("%Y%m%d")
+name_Database =  "ojdevictions_2022_" + today.strftime("%Y%m%d") # + "_2"
 cur.execute("CREATE database "  + name_Database + ";")
 con.close()
 
@@ -27,7 +27,7 @@ subprocess.call([cmd, arg1, arg2], shell = True)
 
 # run r script to get tables and write to csv
 command = "C:\\Program Files\\R\\R-4.0.5\\bin\\Rscript.exe"
-path2script = "R_dataCleaning/flat_file_evictions.R"
+path2script = "R_dataCleaning/OLD_flat_file_evictions.R"
 subprocess.call([command, path2script], shell=True)
 
 # get file extenstions
