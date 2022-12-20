@@ -38,8 +38,9 @@ DATABASE = {
     'port': '5432',
     'username': 'postgres',
     'password': 'admin',
-    #'database': "ojdevictions_2015" #_" + today.strftime("%Y%m%d")
-    'database': "ojdevictions_" + today.strftime("%Y") + "_" + today.strftime("%Y%m%d")
+    #'database': "ojdevictions_2020_" + today.strftime("%Y%m%d")
+    #'database': "ojdevictions_2020_" + today.strftime("%Y%m%d") + "_3"
+    'database': "ojdevictions_" + today.strftime("%Y") + "_" + today.strftime("%Y%m%d") # + "_2"
 }
 
 FILES_STORE = r'G:\Shared drives\ojdevictions\ScrapeData\Court Documents'
